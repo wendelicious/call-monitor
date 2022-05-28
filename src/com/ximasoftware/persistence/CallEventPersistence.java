@@ -5,11 +5,9 @@ import com.ximasoftware.event.CallEvent;
 import com.ximasoftware.model.ManagedCall;
 import com.ximasoftware.model.ManagedCallEvent;
 
-import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 import static com.ximasoftware.util.Assertion.checkArgument;
 import static com.ximasoftware.util.Assertion.checkState;

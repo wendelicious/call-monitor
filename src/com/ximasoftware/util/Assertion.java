@@ -3,6 +3,11 @@ package com.ximasoftware.util;
 import java.util.Arrays;
 import java.util.Objects;
 
+/**
+ * Oh, Guava. How I miss you. And commons collections. Sad emoji.
+ *
+ * Don't cry for me, null assertions.
+ */
 public class Assertion {
     public static <T> T checkNotNull(T thing) {
         if (thing == null) {
