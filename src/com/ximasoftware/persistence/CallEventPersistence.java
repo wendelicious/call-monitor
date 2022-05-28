@@ -20,7 +20,8 @@ import static com.ximasoftware.util.Assertion.isNotEmpty;
  */
 public class CallEventPersistence {
     private final Map<String, ManagedCall> callsById = new ConcurrentHashMap<>();
-    private final Set<ManagedCall> activeCalls = new ConcurrentSkipListSet<>(Comparator.comparing(ManagedCall::getCallId));
+//    private final Set<ManagedCall> activeCalls = new ConcurrentSkipListSet<>(Comparator.comparing(ManagedCall::getCallId));
+    private final CallTimeTracker timeTracker = new CallTimeTracker();
     private final IndexedSet<String, ManagedCall> callsByParty = new IndexedSet<>();
     private final IndexedSet<EventType, ManagedCallEvent> callEventsByEventType = new IndexedSet<>();
 
@@ -39,7 +40,8 @@ public class CallEventPersistence {
             }
         }
 
-        activeCalls.add(call);
+//        activeCalls.add(call);
+        timeTracker.logCallStart(call);
         callsByParty.add(call.getCallingParty(), call);
         callsByParty.add(call.getReceivingParty(), call);
         return call;
@@ -61,16 +63,18 @@ public class CallEventPersistence {
         callEventsByEventType.add(last.getEvent().getEventType(), last);
 
         if (!call.isActive()) {
-            activeCalls.remove(call);
+//            activeCalls.remove(call);
+            timeTracker.logCallEnd(call);
         }
     }
 
     public int getNumberOfActiveCalls() {
-        return activeCalls.size();
+        return timeTracker.getActiveCallCount();
+//        return activeCalls.size();
     }
 
     public int getNumberOfCompletedCalls() {
-        return callsById.size() - activeCalls.size();
+        return callsById.size() - getNumberOfActiveCalls();
     }
 
     /**
@@ -83,6 +87,7 @@ public class CallEventPersistence {
         }
 
         long millis = events.stream()
+//                .mapToLong(c -> c.getDuration().toMillis())
                 .mapToLong(c -> c.getDuration().toMillis())
                 .sum();
 
@@ -94,16 +99,6 @@ public class CallEventPersistence {
      */
     public long getTotalCallTimeForParty(String party) {
         checkArgument(isNotEmpty(party), "party can't be empty");
-        final Set<ManagedCall> calls = callsByParty.get(party.trim());
-
-        if (calls == null) {
-            return 0;
-        }
-
-        long millis = calls.stream()
-                .mapToLong(c -> c.getDuration().toMillis())
-                .sum();
-
-        return millis;
+        return timeTracker.countCalltimeForParty(party);
     }
 }
