@@ -42,7 +42,7 @@ class CallTimeTracker {
                 .map(ManagedCall::getDuration)
                 .mapToLong(d -> d.toMillis())
                 .sum();
-        final long completed = completedCalltimeByParty.get(party).get();
+        final long completed = completedCalltimeByParty.getOrDefault(party, new AtomicLong(0)).get();
 
         return active + completed;
     }
